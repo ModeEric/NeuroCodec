@@ -10,12 +10,18 @@ Meh, does better than guessing, but not by much. Perhaps smoothing the data woul
 
 File:
 singlechannelmlp.py
-Idea:
+Idea: 
 aims to test how well an autoregresive MLP with fixed window size does compared to guessing the average
-Result: Meh, does better than guessing, but not by much. Perhaps smoothing the data would help, i imagine extreme outliers would make this a harder problem.
+Result: 
+Meh, does better than guessing, but not by much. Perhaps smoothing the data would help, i imagine extreme outliers would make this a harder problem.
 
 File:
 singlechannelsmoothedmlp.py
-Idea:
+Idea: 
 Same thing as singlechannelmlp.py, but smoothed to make the next item in the sequence more reasonable.
-Result: Not much improvement, the overall MSE improves for both
+Result: 
+Not much improvement, the overall MSE improves for both but the difference isn't significant
+
+File: 
+
+Idea: What if we try this on a byte/bit level
