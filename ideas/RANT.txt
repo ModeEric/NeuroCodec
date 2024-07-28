@@ -4,4 +4,4 @@ Ideas:
 - These are signals, so they have repetitive components
 - Predict across time, across channels
 - Skip/pool some points (not effective for lossless compression on second thought)
-- 
+- Ideally, we have an adaptive bitwise autoencoder

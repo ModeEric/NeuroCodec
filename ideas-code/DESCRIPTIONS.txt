@@ -22,6 +22,6 @@ Same thing as singlechannelmlp.py, but smoothed to make the next item in the seq
 Result: 
 Not much improvement, the overall MSE improves for both but the difference isn't significant
 
-File: 
+File: autoenc.py
 
-Idea: What if we try this on a byte/bit level
+Idea: Test how well autoencoders do on the entire sequence
