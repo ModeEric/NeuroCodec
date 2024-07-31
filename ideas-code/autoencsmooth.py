@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from scipy.io import wavfile
+from scipy.signal import convolve
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -12,10 +13,18 @@ def load_wav_file(file_path):
     _, data = wavfile.read(file_path)
     return data.astype(np.float32)
 
+def apply_smoothing_filter(audio, filter_size=256):
+    # Create a smoothing filter
+    smooth_filter = np.ones(filter_size) / filter_size
+    # Apply the filter
+    smoothed_audio = convolve(audio, smooth_filter, mode='same')
+    return smoothed_audio
+
 class AudioDataset(Dataset):
-    def __init__(self, audio_files, max_length=None):
+    def __init__(self, audio_files, max_length=None, filter_size=256):
         self.audio_files = audio_files
         self.max_length = max_length
+        self.filter_size = filter_size
         self.audios = []
         
         if max_length is None:
@@ -23,6 +32,8 @@ class AudioDataset(Dataset):
         
         for file in audio_files:
             audio = load_wav_file(file)
+            # Apply smoothing filter
+            audio = apply_smoothing_filter(audio, self.filter_size)
             if len(audio) > self.max_length:
                 audio = audio[:self.max_length]
             elif len(audio) < self.max_length:
@@ -66,7 +77,6 @@ class ConvAutoencoder(nn.Module):
         if decoded.size(-1) != x.size(-1):
             decoded = F.interpolate(decoded, size=x.size(-1), mode='linear', align_corners=False)
         return decoded
-
 def train_model(model, train_loader, criterion, optimizer, device):
     model.train()
     total_loss = 0
@@ -114,7 +124,7 @@ def calculate_average_baseline_mse(test_loader, device):
     
     return total_mse / total_samples
 
-def evaluate_autoencoder(folder_path, batch_size=8, epochs=10):
+def evaluate_autoencoder(folder_path, batch_size=8, epochs=10, filter_size=256):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
@@ -127,8 +137,8 @@ def evaluate_autoencoder(folder_path, batch_size=8, epochs=10):
     # Ensure max_length is divisible by 8 (due to 3 layers of stride 2)
     max_length = ((max_length - 1) // 8 + 1) * 8
 
-    train_dataset = AudioDataset(train_files, max_length)
-    test_dataset = AudioDataset(test_files, max_length)
+    train_dataset = AudioDataset(train_files, max_length, filter_size)
+    test_dataset = AudioDataset(test_files, max_length, filter_size)
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=batch_size)
 
@@ -155,5 +165,5 @@ def evaluate_autoencoder(folder_path, batch_size=8, epochs=10):
 
 # Usage
 folder_path = 'data'
-autoencoder_mse, baseline_mse = evaluate_autoencoder(folder_path)
+autoencoder_mse, baseline_mse = evaluate_autoencoder(folder_path, filter_size=256)
 print(f"The autoencoder outperforms the average baseline by {baseline_mse - autoencoder_mse} MSE")

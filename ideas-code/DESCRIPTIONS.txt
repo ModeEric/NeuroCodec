@@ -23,5 +23,9 @@ Result:
 Not much improvement, the overall MSE improves for both but the difference isn't significant
 
 File: autoenc.py
-
 Idea: Test how well autoencoders do on the entire sequence
+Result: Pretty good result, I should set an "ideal number" that allows us to encode the residual within the constraints.
+
+File: autoenc.py
+Idea: Maybe autoencoders work better on less jagged data, so we should smooth the data first
+Result: Still good results, but suprisingly little auteoncoder improvement
